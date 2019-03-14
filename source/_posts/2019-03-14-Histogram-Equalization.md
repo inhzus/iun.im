@@ -1,7 +1,7 @@
 ---
 title: 直方图均衡化
 date: 2019-03-14 01:59:03
-tags: image
+tags: [Image, Matlab]
 mathjax: true
 ---
 
