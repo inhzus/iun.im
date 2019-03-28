@@ -36,6 +36,8 @@ def Example(object):
 
 Common method of constructor is a waste of time and code space.
 
+<!--more-->
+
 #### Then I found
 
 ```python
