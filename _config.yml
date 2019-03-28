@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Suun
+title: Inhzus's Blog
 subtitle:
 description:
 keywords: Blog
@@ -26,7 +26,7 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
-skip_render: ["*.html", "static/**"]
+skip_render: ["*.html", "static/**", "*.js", "*.json"]
 
 # Writing
 new_post_name: :year-:month-:day-:title.md # File name of new posts
@@ -82,11 +82,40 @@ deploy:
   repo: https://github.com/inhzus/iun.im
   branch: deploy
 
+all_minifier: true
+html_minifier:
+  enable: false
+  silent: false
+js_minifier:
+  enable: false
+  silent: false
+css_minifier:
+  enable: false
+  exclude:
+    - '**/*.min.css'
+  silent: false
+image_minifier:
+  enable: true
+  interlaced: false
+  multipass: false
+  optimizationLevel: 2
+  pngquant: false
+  progressive: false
+  silent: true
+
 # hexo-neat
 neat_enable: true
 neat_html:
   enable: true
   exclude:
+  removeComments: true
+  removeCommentsFromCDATA: true
+  collapseWhitespace: true
+  collapseBooleanAttributes: true
+  removeEmptyAttributes: false
+  preserveLineBreaks: true
+  minifyJS: false
+  minifyCSS: false
 neat_css:
   enable: true
   exclude:
@@ -100,3 +129,35 @@ neat_js:
     - '**/*.min.js'
     - '**/jquery.fancybox.pack.js'
     - '**/index.js'
+
+# search:
+#   path: search.xml
+#   field: post
+#   format: html
+#   limit: 10000
+
+filter_optimize:
+  enable: true
+  # remove static resource query string
+  #   - like `?v=1.0.0`
+  remove_query_string: true
+  # remove the surrounding comments in each of the bundled files
+  remove_comments: false
+  css:
+    enable: false
+    # bundle loaded css file into the one
+    bundle: true
+    # use a script block to load css elements dynamically
+    delivery: false
+    # make specific css content inline into the html page
+    #   - only support the full path
+    #   - default is ['css/main.css']
+    inlines: []
+    excludes: []
+  js:
+    # bundle loaded js file into the one
+    bundle: true
+    excludes: []
+  # set the priority of this plugin,
+  # lower means it will be executed first, default is 10
+  priority: 1000

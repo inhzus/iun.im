@@ -1,5 +1,5 @@
 ---
-title: 直方图均衡化
+title: 直方图均衡化的实现
 date: 2019-03-14 01:59:03
 tags: [Image, Matlab]
 mathjax: true
@@ -16,8 +16,7 @@ mathjax: true
 要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数.
 
 这一函数的推导课上已经给出:
-![formula](2019-03-14-Histogram-Equalization/formula.png)
-<!-- $$\int_0^{D_A}H_A(D)dD=\int_0^{D_B}H_B(D)dD=\frac{D_B}{L}A_0=\frac{f(D_A)}{L}A_0\\\Rightarrow f(D_A)=\frac{L}{A_0}\int_0^{D_A}H_A(D)dD=\frac{L}{A_0}\sum_{n=0}^{D_A}H_A(n)$$ -->
+![formula](2019-03-14-histogram-equalization/formula.png)
 
 ### 彩色图的两种实现思路
 
@@ -27,7 +26,7 @@ mathjax: true
 
 <!--more-->
 
-为了避免重复计算带来的性能问题, 通过计数循环与累加, 得到 $f(x)=\frac{L}{A_0}\sum_{n=0}^{x}H_A(n), x=1, 2, ...,256$ 其中, $L$ 为颜色值范围内的数量, RGB 情况下为 256; $A_0$ 为图片的总像素数. 该函数存于一个 $L​$ 长度的数组中, 其中某个值的 index 就是它的自变量.
+ 为了避免重复计算带来的性能问题, 通过计数循环与累加, 得到 $f(x)=\frac{L}{A_0}\sum_{n=0}^{x}H_A(n),x=1,2,\ldots,256​$ 其中, $L​$ 为颜色值范围内的数量, RGB 情况下为 256; $A_0​$ 为图片的总像素数. 该函数存于一个 $L​$ 长度的数组中, 其中某个值的 index 就是它的自变量.
 
 之后, 逐行逐列遍历图片, 代入上述得到的函数即可实现**直方图均衡化**.
 
@@ -51,25 +50,25 @@ HSV 这种色彩表示方式在课上也有提到.按照 [维基百科](<https:/
 
 下图可以看出, 原图的色域较小, 而经过均衡化, 黑白对比非常明显.
 
-![hawkes](2019-03-14-Histogram-Equalization/hawkes_comp.jpg)
+![hawkes](2019-03-14-histogram-equalization/hawkes_comp.jpg)
 
 #### RGB
 
 通过以下图可以看出, 颜色分布较原图更加广泛平均.
 
-![color](2019-03-14-Histogram-Equalization/color_comp.jpg)
+![color](2019-03-14-histogram-equalization/color_comp.jpg)
 
 #### HSV
 
 下图与上图相比较, 能够看出, 颜色本就已经鲜艳的地方饱和度变得更高, 同时照片的亮度对比度(上下对比)也变大.
 
-![hsv](2019-03-14-Histogram-Equalization/color_hsv.jpg)
+![hsv](2019-03-14-histogram-equalization/color_hsv.jpg)
 
 #### 观察: 直方图均衡化放大了噪声
 
 以下图片是我使用手机拍摄得到, 整体色调偏暗, 黑色较多, 经过 RGB 直方图均衡化后可以观察到图片中的电脑上有大量噪点.
 
-![noise](2019-03-14-Histogram-Equalization/noise.jpg)
+![noise](2019-03-14-histogram-equalization/noise.jpg)
 
 ### 具体实现
 
