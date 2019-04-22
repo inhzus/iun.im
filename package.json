@@ -6,7 +6,7 @@
     "version": "3.8.0"
   },
   "dependencies": {
-    "eslint": "^5.15.2",
+    "eslint": "^5.16.0",
     "hexo": "^3.8.0",
     "hexo-all-minifier": "^0.5.3",
     "hexo-asset-image": "0.0.3",

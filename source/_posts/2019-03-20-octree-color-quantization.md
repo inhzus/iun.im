@@ -1,7 +1,7 @@
 ---
 title: 八叉树颜色量化
 date: 2019-03-20 19:58:40
-tags: [Image]
+tags: [Image, Algorithm, C++]
 mathjax: true
 ---
 
