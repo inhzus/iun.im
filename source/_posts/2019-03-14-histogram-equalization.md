@@ -16,7 +16,7 @@ mathjax: true
 要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数.
 
 这一函数的推导课上已经给出:
-![formula](2019-03-14-histogram-equalization/formula.png)
+![formula](https://s1.ax2x.com/2019/04/23/5GpZG3.png)
 
 ### 彩色图的两种实现思路
 
@@ -50,25 +50,25 @@ HSV 这种色彩表示方式在课上也有提到.按照 [维基百科](<https:/
 
 下图可以看出, 原图的色域较小, 而经过均衡化, 黑白对比非常明显.
 
-![hawkes](2019-03-14-histogram-equalization/hawkes_comp.jpg)
+![hawkes](https://s1.ax2x.com/2019/04/23/5GpPVn.jpg)
 
 #### RGB
 
 通过以下图可以看出, 颜色分布较原图更加广泛平均.
 
-![color](2019-03-14-histogram-equalization/color_comp.jpg)
+![color](https://s1.ax2x.com/2019/04/23/5GphEK.jpg)
 
 #### HSV
 
 下图与上图相比较, 能够看出, 颜色本就已经鲜艳的地方饱和度变得更高, 同时照片的亮度对比度(上下对比)也变大.
 
-![hsv](2019-03-14-histogram-equalization/color_hsv.jpg)
+![hsv](https://s1.ax2x.com/2019/04/23/5Gpv7G.jpg)
 
 #### 观察: 直方图均衡化放大了噪声
 
 以下图片是我使用手机拍摄得到, 整体色调偏暗, 黑色较多, 经过 RGB 直方图均衡化后可以观察到图片中的电脑上有大量噪点.
 
-![noise](2019-03-14-histogram-equalization/noise.jpg)
+![noise](https://s1.ax2x.com/2019/04/23/5GpayE.jpg)
 
 ### 具体实现
 
