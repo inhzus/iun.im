@@ -57,7 +57,7 @@ else
 
 - 搜索直到无法找到下一个边界点或回到起点.
 
-![](https://s1.ax2x.com/2019/04/30/5G41Lp.png)
+![](https://i.loli.net/2019/06/02/5cf3e654e83e234476.jpg)
 
 ### 细节
 
@@ -83,11 +83,11 @@ Canny 边缘检测算法在维基百科中的介绍已经非常全面了, 但一
 
 #### Pic A
 
-![](https://s1.ax2x.com/2019/04/30/5G4N8n.jpg)
+![](https://i.loli.net/2019/06/02/5cf3e665a7bd816725.jpg)
 
 #### Pic B
 
-![](https://s1.ax2x.com/2019/04/30/5G4lHE.jpg)
+![](https://i.loli.net/2019/06/02/5cf3e669171bd95945.jpg)
 
 ### 实现
 
