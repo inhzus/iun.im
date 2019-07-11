@@ -35,6 +35,8 @@ XPS-9360 对 Linux 的兼容性是众所周知的，考虑到 Windows 的以下�
 
 其他同 Windows.
 
+<!--more-->
+
 ## 评价
 
 ### 优点
