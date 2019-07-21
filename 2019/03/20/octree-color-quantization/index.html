@@ -1,0 +1,415 @@
+<!DOCTYPE html><html class="theme-next pisces" lang="en"><head><meta name="generator" content="Hexo 3.8.0">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2">
+<meta name="theme-color" content="#222">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+<link rel="mask-icon" href="/images/logo.svg" color="#222">
+<script id="hexo.configurations">
+var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+<meta name="description" content="实验目的 实现 BMP 文件从真彩色到 256 色的颜色量化算法 实验原理 在计算机图形学中, 颜色量化是应用于颜色空间的一种量化方法. 它能够减少一张图片中不同颜色的数量, 使得到的新图像在视觉上和原图像非常相似, 且使占用.  table {     width: auto;     height: auto; }      0 1 2 3 4 5 6 7     blue 1 0 0 0 1">
+<meta name="keywords" content="Algorithm,C++,Image">
+<meta property="og:type" content="article">
+<meta property="og:title" content="八叉树颜色量化">
+<meta property="og:url" content="https://iun.im/2019/03/20/octree-color-quantization/index.html">
+<meta property="og:site_name" content="Inhzus's Blog">
+<meta property="og:description" content="实验目的 实现 BMP 文件从真彩色到 256 色的颜色量化算法 实验原理 在计算机图形学中, 颜色量化是应用于颜色空间的一种量化方法. 它能够减少一张图片中不同颜色的数量, 使得到的新图像在视觉上和原图像非常相似, 且使占用.  table {     width: auto;     height: auto; }      0 1 2 3 4 5 6 7     blue 1 0 0 0 1">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e6198972335234.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e6490dc2376653.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e64f548be57114.jpg">
+<meta property="og:updated_time" content="2019-07-21T12:10:25.609Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="八叉树颜色量化">
+<meta name="twitter:description" content="实验目的 实现 BMP 文件从真彩色到 256 色的颜色量化算法 实验原理 在计算机图形学中, 颜色量化是应用于颜色空间的一种量化方法. 它能够减少一张图片中不同颜色的数量, 使得到的新图像在视觉上和原图像非常相似, 且使占用.  table {     width: auto;     height: auto; }      0 1 2 3 4 5 6 7     blue 1 0 0 0 1">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/02/5cf3e6198972335234.jpg">
+<link rel="canonical" href="https://iun.im/2019/03/20/octree-color-quantization/">
+<script id="page.configurations">
+CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+<title>八叉树颜色量化 | Inhzus's Blog</title>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-134644252-1"></script>
+<script>
+var host = window.location.hostname;
+    if (host !== "localhost" || !true) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-134644252-1');
+    }
+</script>
+<noscript>
+<style>
+.use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+</style>
+</noscript>
+</head>
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="en">
+<div class="container sidebar-position-left page-post-detail">
+<div class="headband"></div>
+<header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+<div class="header-inner"><div class="site-brand-wrapper">
+<div class="site-meta">
+<div class="custom-logo-site-title">
+<a href="/" class="brand" rel="start">
+<span class="logo-line-before"><i></i></span>
+<span class="site-title">Inhzus's Blog</span>
+<span class="logo-line-after"><i></i></span>
+</a>
+</div>
+</div>
+<div class="site-nav-toggle">
+<button aria-label="Toggle navigation bar">
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+</button>
+</div>
+</div>
+<nav class="site-nav">
+<ul id="menu" class="menu">
+<li class="menu-item menu-item-home">
+<a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a>
+</li>
+<li class="menu-item menu-item-tags">
+<a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a>
+</li>
+<li class="menu-item menu-item-archives">
+<a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a>
+</li>
+</ul>
+</nav>
+</div>
+</header>
+<a href="https://github.com/inhzus" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<main id="main" class="main">
+<div class="main-inner">
+<div class="content-wrap">
+<div id="content" class="content">
+<div id="posts" class="posts-expand">
+<article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+<div class="post-block">
+<link itemprop="mainEntityOfPage" href="https://iun.im/2019/03/20/octree-color-quantization/">
+<span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<meta itemprop="name" content="Inhzus">
+<meta itemprop="description" content="Personal Tech Blog by Inhzus.">
+<meta itemprop="image" content="/images/avatar.gif">
+</span>
+<span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+<meta itemprop="name" content="Inhzus's Blog">
+</span>
+<header class="post-header">
+<h2 class="post-title" itemprop="name headline">八叉树颜色量化
+</h2>
+<div class="post-meta">
+<span class="post-meta-item">
+<span class="post-meta-item-icon">
+<i class="fa fa-calendar-o"></i>
+</span>
+<span class="post-meta-item-text">Posted on</span>
+<time title="Created: 2019-03-20 19:58:40" itemprop="dateCreated datePublished" datetime="2019-03-20T19:58:40+08:00">2019-03-20</time>
+</span>
+<br>
+</div>
+</header>
+<div class="post-body" itemprop="articleBody">
+<h3 id="实验目的">实验目的</h3>
+<p>实现 BMP 文件从真彩色到 256 色的颜色量化算法</p>
+<h3 id="实验原理">实验原理</h3>
+<p>在计算机图形学中, 颜色量化是应用于颜色空间的一种量化方法. 它能够减少一张图片中不同颜色的数量, 使得到的新图像在视觉上和原图像非常相似, 且使占用.</p>
+<style>
+table {
+    width: auto;
+    height: auto;
+}
+</style>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>blue</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>green</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>red</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>对于真彩色图像的某个像素, 从高位至低位, 每位的三个颜色通道可以使用 0-7 的数字表示, 因此可看做共有八层的八叉树. 在颜色量化过程中, 不断地对八叉树进行剪枝, 直到"叶子"数量小于等于 256, 则得到一个有 256 个颜色的调色板.</p>
+<h4 id="剪枝策略">剪枝策略</h4>
+<p>剪枝的策略实现我考虑了如下两种.</p>
+<a id="more"></a>
+<ul>
+<li><p>构建八叉树时, 将所有"叶子"节点构建为最小堆, 从最小堆中逐个出栈, 此时, 父节点变为叶子节点, 压栈. 同时, 修改父节点的颜色值. <span class="math display">\[ parent.color=\frac{parent.color\cdot{parent.mix}+child.color\cdot{child.cnt}}{parent.mix+child.cnt} \]</span> <code>node.mix</code>: 父节点已归并的子节点的像素数量</p>
+<p><code>node.cnt</code>: 该节点的像素数量</p>
+<p>当 <code>node.mix == node.cnt</code>, 该节点的所有子节点都已经被归并剪枝.</p></li>
+<li><p>构建八叉树时, 将不同深度的节点插入至不同数组中. 从倒数第二层开始, 排序后(按像素数量)逐个删除其子节点, 颜色数减少 (非空子节点数 - 1). 修改父节点的颜色值. <span class="math display">\[ parent.color=\frac{\sum_{i=0}^{7}{child.color\cdot{child.cnt}}}{parent.cnt} \]</span></p></li>
+</ul>
+<p>以上两个策略的区别在于</p>
+<ul>
+<li><p>策略一, 在极端情况下, 占比大的颜色最后一层都没有进行归并, 而占比少的颜色, 已经归并至无法分辨.</p>
+<p>故, 该策略会把占比比较少的颜色直接无视.</p></li>
+<li><p>策略二, 由于是逐层归并, 占比大的颜色的细节可能失真, 但占比小的颜色细节可以更好地保持.</p></li>
+</ul>
+<p><strong>实际使用中发现, 在主题颜色占比大的情况下, 策略一极为鸡肋, 占用过多调色板位置. 而在颜色饱和度较高的情况下, 策略一过多地渲染了占比偏大的颜色, 而使得占比偏小细节丰富的颜色归并过多导致失真. 因此舍弃.</strong></p>
+<h4 id="抖动算法">抖动算法</h4>
+<p>在渲染天空时, 由于天空的渐变色颜色过多, 考虑使用抖动算法 <a href="https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering" target="_blank" rel="noopener">Floyd-Steinberg dithering</a>. 其将当前像素的调色板匹配颜色和原颜色的差值 作用于 即将匹配调色板的像素上. 抖动矩阵为: <span class="math display">\[ \begin{bmatrix} &amp; &amp; * &amp; \frac{\displaystyle 7}{\displaystyle 16} &amp; \ldots \\ \ldots &amp; \frac{\displaystyle 3}{\displaystyle 16} &amp; \frac{\displaystyle 5}{\displaystyle 16} &amp; \frac{\displaystyle 1}{\displaystyle 16} &amp; \ldots \\ \end{bmatrix} \]</span> 经过实战我认为, 对于<strong>照片</strong>, 抖动算法能够在较小程度上使得生成的图片的过渡较为平缓, 但对于<strong>插画</strong>, 由于其构图一般情况下颜色边界较为明显, 抖动算法会使得两种颜色的边界变得模糊. 为了避免作用于插画时带来的负面效果, 代码中未启用抖动算法部分.</p>
+<p><a href="https://github.com/inhzus/Octree-Color-Quantization" target="_blank" rel="noopener">GitHub Repository</a></p>
+<h3 id="实验结果">实验结果</h3>
+<p>以下实验结果均在策略二<strong>, </strong>关闭<strong>抖动转换</strong>条件下生成.</p>
+<h4 id="pic-a">Pic A</h4>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e6198972335234.jpg"></p>
+<ul>
+<li>天空和水面的颜色过渡不够自然(策略一时天空颜色会更为丰富), 相比策略一颜色相对丰富.</li>
+<li>水面倒印的四处光源的颜色基本与原图一致. 说明逐层剪枝的方法有效避免了剪去关键特征颜色, 即便剪枝, 父节点保持了子节点的加权平均值, 使得颜色不会过于失真.</li>
+</ul>
+<h4 id="pic-b">Pic B</h4>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e6490dc2376653.jpg"></p>
+<p>Windows 画图生成的图片过于垃圾, 为了节省版面, 省略.</p>
+<p>过渡依然不是很流畅, 但作为颜色量化图效果还可以.</p>
+<h4 id="pic-3">Pic 3</h4>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e64f548be57114.jpg"></p>
+<p>对于这种颜色不是过于丰富的图来说, 生成的 256 色图片相比原图很难看出有什么不同. 但对于渐变色较多的图片来说, 生成的图片就不是很能令人满意.</p>
+<h3 id="实验小结">实验小结</h3>
+<p>本次实验过程中涉及到了</p>
+<ul>
+<li>BMP 文件的读写</li>
+<li>八叉树颜色量化的剪枝问题</li>
+</ul>
+<p>八叉树颜色量化问题最大的困难我认为在于如何进行渐变色的处理, 尽管有抖动算法, 但是网上的相关资料不是很丰富, 再加上可能是我的算法具体问题, 在使用时效果并不是很好.</p>
+</div>
+<footer class="post-footer">
+<div class="post-tags">
+<a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+<a href="/tags/C/" rel="tag"># C++</a>
+<a href="/tags/Image/" rel="tag"># Image</a>
+</div>
+<div class="post-nav">
+<div class="post-nav-next post-nav-item">
+<a href="/2019/03/14/histogram-equalization/" rel="next" title="直方图均衡化的实现">
+<i class="fa fa-chevron-left"></i> 直方图均衡化的实现
+</a>
+</div>
+<span class="post-nav-divider"></span>
+<div class="post-nav-prev post-nav-item">
+<a href="/2019/03/26/juq-technical-docs/" rel="prev" title="Juq Technical Documentation">
+Juq Technical Documentation <i class="fa fa-chevron-right"></i>
+</a>
+</div>
+</div>
+</footer>
+</div>
+</article>
+</div>
+</div>
+</div>
+<div class="sidebar-toggle">
+<div class="sidebar-toggle-line-wrap">
+<span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+</div>
+</div>
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-inner">
+<ul class="sidebar-nav motion-element">
+<li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+Table of Contents
+</li>
+<li class="sidebar-nav-overview" data-target="site-overview-wrap">
+Overview
+</li>
+</ul>
+<div class="site-overview-wrap sidebar-panel">
+<div class="site-overview">
+<div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<p class="site-author-name" itemprop="name">Inhzus</p>
+<div class="site-description motion-element" itemprop="description">Personal Tech Blog by Inhzus.</div>
+</div>
+<nav class="site-state motion-element">
+<div class="site-state-item site-state-posts">
+<a href="/archives/">
+<span class="site-state-item-count">17</span>
+<span class="site-state-item-name">posts</span>
+</a>
+</div>
+<div class="site-state-item site-state-tags">
+<a href="/tags/">
+<span class="site-state-item-count">21</span>
+<span class="site-state-item-name">tags</span>
+</a>
+</div>
+</nav>
+<div class="links-of-author motion-element">
+<span class="links-of-author-item">
+<a href="https://github.com/inhzus" title="GitHub → https://github.com/inhzus" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+</span>
+<span class="links-of-author-item">
+<a href="mailto:inhzus@gmail.com" title="E-Mail → mailto:inhzus@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+</span>
+</div>
+<div class="links-of-blogroll motion-element links-of-blogroll-block">
+<div class="links-of-blogroll-title">
+<i class="fa fa-fw fa-link"></i>
+Links
+</div>
+<ul class="links-of-blogroll-list">
+<li class="links-of-blogroll-item">
+<a href="https://www.zsuun.com" title="https://www.zsuun.com" rel="noopener" target="_blank">zsuun.com</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+<div class="post-toc">
+<div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#实验目的"><span class="nav-number">1.</span> <span class="nav-text">实验目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验原理"><span class="nav-number">2.</span> <span class="nav-text">实验原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#剪枝策略"><span class="nav-number">2.1.</span> <span class="nav-text">剪枝策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#抖动算法"><span class="nav-number">2.2.</span> <span class="nav-text">抖动算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验结果"><span class="nav-number">3.</span> <span class="nav-text">实验结果</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pic-a"><span class="nav-number">3.1.</span> <span class="nav-text">Pic A</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pic-b"><span class="nav-number">3.2.</span> <span class="nav-text">Pic B</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pic-3"><span class="nav-number">3.3.</span> <span class="nav-text">Pic 3</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验小结"><span class="nav-number">4.</span> <span class="nav-text">实验小结</span></a></li></ol></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer id="footer" class="footer">
+<div class="footer-inner">
+<div class="copyright">© <span itemprop="copyrightYear">2019</span>
+<span class="with-love" id="animate">
+<i class="fa fa-user"></i>
+</span>
+<span class="author" itemprop="copyrightHolder">Inhzus</span>
+</div>
+<div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+<span class="post-meta-divider">|</span>
+<div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.2.0</div>
+</div>
+</footer>
+<div class="back-to-top">
+<i class="fa fa-arrow-up"></i>
+<span id="scrollpercent"><span>0</span>%</span>
+</div>
+</div>
+<script>
+if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<script type="text/javascript" src="/bundle.js"></script><script type="text/javascript">
+MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+;
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script></body></html>

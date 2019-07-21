@@ -1,0 +1,379 @@
+<!DOCTYPE html><html class="theme-next pisces" lang="en"><head><meta name="generator" content="Hexo 3.8.0">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2">
+<meta name="theme-color" content="#222">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+<link rel="mask-icon" href="/images/logo.svg" color="#222">
+<script id="hexo.configurations">
+var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+<meta name="description" content="要求  已知: 彩色/灰度图 目标: 直方图均衡化 限制: 不准使用 histeq 函数  理论知识准备 要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数. 这一函数的推导课上已经给出:  彩色图的两种实现思路 RGB 通道 这种实现的思路非常直接, 在将图片提取出 RGB 三通道后, 统计得到每个颜色值的数量, 即直方图.">
+<meta name="keywords" content="Algorithm,Image,Matlab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="直方图均衡化的实现">
+<meta property="og:url" content="https://iun.im/2019/03/14/histogram-equalization/index.html">
+<meta property="og:site_name" content="Inhzus's Blog">
+<meta property="og:description" content="要求  已知: 彩色/灰度图 目标: 直方图均衡化 限制: 不准使用 histeq 函数  理论知识准备 要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数. 这一函数的推导课上已经给出:  彩色图的两种实现思路 RGB 通道 这种实现的思路非常直接, 在将图片提取出 RGB 三通道后, 统计得到每个颜色值的数量, 即直方图.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e5f94362023122.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e5fb74ec564237.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e608706a871392.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e60e1737e34618.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e61481d4a58580.jpg">
+<meta property="og:updated_time" content="2019-07-21T12:10:25.609Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="直方图均衡化的实现">
+<meta name="twitter:description" content="要求  已知: 彩色/灰度图 目标: 直方图均衡化 限制: 不准使用 histeq 函数  理论知识准备 要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数. 这一函数的推导课上已经给出:  彩色图的两种实现思路 RGB 通道 这种实现的思路非常直接, 在将图片提取出 RGB 三通道后, 统计得到每个颜色值的数量, 即直方图.">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/02/5cf3e5f94362023122.jpg">
+<link rel="canonical" href="https://iun.im/2019/03/14/histogram-equalization/">
+<script id="page.configurations">
+CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+<title>直方图均衡化的实现 | Inhzus's Blog</title>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-134644252-1"></script>
+<script>
+var host = window.location.hostname;
+    if (host !== "localhost" || !true) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-134644252-1');
+    }
+</script>
+<noscript>
+<style>
+.use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+</style>
+</noscript>
+</head>
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="en">
+<div class="container sidebar-position-left page-post-detail">
+<div class="headband"></div>
+<header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+<div class="header-inner"><div class="site-brand-wrapper">
+<div class="site-meta">
+<div class="custom-logo-site-title">
+<a href="/" class="brand" rel="start">
+<span class="logo-line-before"><i></i></span>
+<span class="site-title">Inhzus's Blog</span>
+<span class="logo-line-after"><i></i></span>
+</a>
+</div>
+</div>
+<div class="site-nav-toggle">
+<button aria-label="Toggle navigation bar">
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+</button>
+</div>
+</div>
+<nav class="site-nav">
+<ul id="menu" class="menu">
+<li class="menu-item menu-item-home">
+<a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a>
+</li>
+<li class="menu-item menu-item-tags">
+<a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a>
+</li>
+<li class="menu-item menu-item-archives">
+<a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a>
+</li>
+</ul>
+</nav>
+</div>
+</header>
+<a href="https://github.com/inhzus" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<main id="main" class="main">
+<div class="main-inner">
+<div class="content-wrap">
+<div id="content" class="content">
+<div id="posts" class="posts-expand">
+<article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+<div class="post-block">
+<link itemprop="mainEntityOfPage" href="https://iun.im/2019/03/14/histogram-equalization/">
+<span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<meta itemprop="name" content="Inhzus">
+<meta itemprop="description" content="Personal Tech Blog by Inhzus.">
+<meta itemprop="image" content="/images/avatar.gif">
+</span>
+<span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+<meta itemprop="name" content="Inhzus's Blog">
+</span>
+<header class="post-header">
+<h2 class="post-title" itemprop="name headline">直方图均衡化的实现
+</h2>
+<div class="post-meta">
+<span class="post-meta-item">
+<span class="post-meta-item-icon">
+<i class="fa fa-calendar-o"></i>
+</span>
+<span class="post-meta-item-text">Posted on</span>
+<time title="Created: 2019-03-14 01:59:03" itemprop="dateCreated datePublished" datetime="2019-03-14T01:59:03+08:00">2019-03-14</time>
+</span>
+<br>
+</div>
+</header>
+<div class="post-body" itemprop="articleBody">
+<h3 id="要求">要求</h3>
+<ul>
+<li>已知: 彩色/灰度图</li>
+<li>目标: 直方图均衡化</li>
+<li>限制: 不准使用 <code>histeq</code> 函数</li>
+</ul>
+<h3 id="理论知识准备">理论知识准备</h3>
+<p>要实现直方图均衡化, 最关键的问题在于找到均衡化的单调变换函数.</p>
+<p>这一函数的推导课上已经给出: <img src="https://i.loli.net/2019/06/02/5cf3e5f94362023122.jpg" alt="formula"></p>
+<h3 id="彩色图的两种实现思路">彩色图的两种实现思路</h3>
+<h4 id="rgb-通道">RGB 通道</h4>
+<p>这种实现的思路非常直接, 在将图片提取出 RGB 三通道后, 统计得到每个颜色值的数量, 即<strong>直方图</strong>.</p>
+<a id="more"></a>
+<p>为了避免重复计算带来的性能问题, 通过计数循环与累加, 得到 <span class="math inline">\(f(x)=\frac{L}{A_0}\sum_{n=0}^{x}H_A(n),x=1,2,\ldots,256​\)</span> 其中, <span class="math inline">\(L​\)</span> 为颜色值范围内的数量, RGB 情况下为 256; <span class="math inline">\(A_0​\)</span> 为图片的总像素数. 该函数存于一个 <span class="math inline">\(L​\)</span> 长度的数组中, 其中某个值的 index 就是它的自变量.</p>
+<p>之后, 逐行逐列遍历图片, 代入上述得到的函数即可实现<strong>直方图均衡化</strong>.</p>
+<h4 id="hsv-通道">HSV 通道</h4>
+<p>HSV 这种色彩表示方式在课上也有提到.按照 <a href="https://zh.wikipedia.org/wiki/HSL%E5%92%8CHSV%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4" target="_blank" rel="noopener">维基百科</a> 介绍: 色相(H), 饱和度(S), 明度(V).</p>
+<p>经过尝试, 在 H 通道进行直方图均衡化会使图片色调"崩坏", 而 S 通道可以使饱和度得到增强, V 通道也可以得到期待的效果.</p>
+<h5 id="第一次算法的失败">第一次算法的失败</h5>
+<p>起初, 我打算仍然采用 RGB 通道的思路. 不过由于 HSV 的值在 0~1 间, 无法将颜色值映射到某个固定长度的数组上, 所以我打算将所有颜色值进行排序后, 然后根据每个像素值进行累加计算得到目标值. 但算法<strong>复杂度过高</strong>使得很难运行出结果, 遂放弃这种思路.</p>
+<h5 id="使用估值代替准确值">使用估值代替准确值</h5>
+<p>迫于无奈, 我选择了将 0~1 的值放缩至 0~255, 使用 RGB 通道的函数进行直方图均衡化, 之后再缩小回 0~1 这个范围, 尽管损失了精度, 但是根据实验结果看, 并没有明显的影响.</p>
+<h3 id="显示效果">显示效果</h3>
+<h4 id="灰度">灰度</h4>
+<p>下图可以看出, 原图的色域较小, 而经过均衡化, 黑白对比非常明显.</p>
+<figure>
+<img src="https://i.loli.net/2019/06/02/5cf3e5fb74ec564237.jpg" alt=""><figcaption>hawkes</figcaption>
+</figure>
+<h4 id="rgb">RGB</h4>
+<p>通过以下图可以看出, 颜色分布较原图更加广泛平均.</p>
+<figure>
+<img src="https://i.loli.net/2019/06/02/5cf3e608706a871392.jpg" alt=""><figcaption>color</figcaption>
+</figure>
+<h4 id="hsv">HSV</h4>
+<p>下图与上图相比较, 能够看出, 颜色本就已经鲜艳的地方饱和度变得更高, 同时照片的亮度对比度(上下对比)也变大.</p>
+<figure>
+<img src="https://i.loli.net/2019/06/02/5cf3e60e1737e34618.jpg" alt=""><figcaption>hsv</figcaption>
+</figure>
+<h4 id="观察-直方图均衡化放大了噪声">观察: 直方图均衡化放大了噪声</h4>
+<p>以下图片是我使用手机拍摄得到, 整体色调偏暗, 黑色较多, 经过 RGB 直方图均衡化后可以观察到图片中的电脑上有大量噪点.</p>
+<figure>
+<img src="https://i.loli.net/2019/06/02/5cf3e61481d4a58580.jpg" alt=""><figcaption>noise</figcaption>
+</figure>
+<h3 id="具体实现">具体实现</h3>
+<p>由于在之前并没有接触过 Matlab, 我对其最佳实现不甚了解. 还望指正.</p>
+<p><em>使用代码时, 对于 RGB 和 HSV 不同的实现方法, 需要修改文件中 hsv 这一 bool 值.</em></p>
+<h4 id="rgb-1">RGB</h4>
+<p>关键在于如何实现 <code>hist_equal(input_channel)</code>, 分三步: 求直方图, 求转换函数, 赋值.</p>
+<h5 id="遇到的问题">遇到的问题</h5>
+<ul>
+<li>Matlab 语言的 index 从 1 开始</li>
+<li>通道的数据类型必须为 <code>uint8</code></li>
+</ul>
+<h5 id="求直方图">求直方图</h5>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ret</span> = <span class="title">get_hist</span><span class="params">(channel)</span></span></span><br><span class="line">    ret = <span class="built_in">zeros</span>(<span class="number">256</span>, <span class="number">1</span>);</span><br><span class="line">    [height, width] = <span class="built_in">size</span>(channel);</span><br><span class="line">    <span class="keyword">for</span> m = <span class="number">1</span>:height</span><br><span class="line">        <span class="keyword">for</span> n = <span class="number">1</span>:width</span><br><span class="line">            ret(channel(m, n)) = ret(channel(m, n)) + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+<p>逐行逐列统计即可.</p>
+<h5 id="求转换函数">求转换函数</h5>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">conversion = <span class="built_in">zeros</span>(<span class="number">256</span>, <span class="number">1</span>);</span><br><span class="line">cur = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:<span class="number">256</span></span><br><span class="line">    cur = cur + src(<span class="built_in">i</span>);</span><br><span class="line">    conversion(<span class="built_in">i</span>) = <span class="number">256</span> * cur / pixels;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+<h5 id="赋值">赋值</h5>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ret = <span class="built_in">zeros</span>(height, width, <span class="string">'uint8'</span>);</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:height</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:width</span><br><span class="line">        ret(<span class="built_in">i</span>, <span class="built_in">j</span>) = conversion(input_channel(<span class="built_in">i</span>, <span class="built_in">j</span>) + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+<h4 id="hsv-1">HSV</h4>
+<p>对于 HSV, 其实只是通过放缩至 RGB 通道的值就可以实现均衡化, 再放缩回取值范围即可. 代码如下</p>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret = double(hist_equal(uint8(<span class="number">256</span> * a))) / <span class="number">256</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>完整文件链接: <a href="https://gist.github.com/inhzus/c86da05e91c5abd9c5835b9c35d9109e" target="_blank" rel="noopener">Histogram_equalization.m</a></p>
+</div>
+<footer class="post-footer">
+<div class="post-tags">
+<a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+<a href="/tags/Image/" rel="tag"># Image</a>
+<a href="/tags/Matlab/" rel="tag"># Matlab</a>
+</div>
+<div class="post-nav">
+<div class="post-nav-next post-nav-item">
+<a href="/2019/02/12/Setup-Boost-in-CLion-on-Windows/" rel="next" title="Windows MinGW 安装 Boost 与 CLion 的配置">
+<i class="fa fa-chevron-left"></i> Windows MinGW 安装 Boost 与 CLion 的配置
+</a>
+</div>
+<span class="post-nav-divider"></span>
+<div class="post-nav-prev post-nav-item">
+<a href="/2019/03/20/octree-color-quantization/" rel="prev" title="八叉树颜色量化">
+八叉树颜色量化 <i class="fa fa-chevron-right"></i>
+</a>
+</div>
+</div>
+</footer>
+</div>
+</article>
+</div>
+</div>
+</div>
+<div class="sidebar-toggle">
+<div class="sidebar-toggle-line-wrap">
+<span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+</div>
+</div>
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-inner">
+<ul class="sidebar-nav motion-element">
+<li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+Table of Contents
+</li>
+<li class="sidebar-nav-overview" data-target="site-overview-wrap">
+Overview
+</li>
+</ul>
+<div class="site-overview-wrap sidebar-panel">
+<div class="site-overview">
+<div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<p class="site-author-name" itemprop="name">Inhzus</p>
+<div class="site-description motion-element" itemprop="description">Personal Tech Blog by Inhzus.</div>
+</div>
+<nav class="site-state motion-element">
+<div class="site-state-item site-state-posts">
+<a href="/archives/">
+<span class="site-state-item-count">17</span>
+<span class="site-state-item-name">posts</span>
+</a>
+</div>
+<div class="site-state-item site-state-tags">
+<a href="/tags/">
+<span class="site-state-item-count">21</span>
+<span class="site-state-item-name">tags</span>
+</a>
+</div>
+</nav>
+<div class="links-of-author motion-element">
+<span class="links-of-author-item">
+<a href="https://github.com/inhzus" title="GitHub → https://github.com/inhzus" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+</span>
+<span class="links-of-author-item">
+<a href="mailto:inhzus@gmail.com" title="E-Mail → mailto:inhzus@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+</span>
+</div>
+<div class="links-of-blogroll motion-element links-of-blogroll-block">
+<div class="links-of-blogroll-title">
+<i class="fa fa-fw fa-link"></i>
+Links
+</div>
+<ul class="links-of-blogroll-list">
+<li class="links-of-blogroll-item">
+<a href="https://www.zsuun.com" title="https://www.zsuun.com" rel="noopener" target="_blank">zsuun.com</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+<div class="post-toc">
+<div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#要求"><span class="nav-number">1.</span> <span class="nav-text">要求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#理论知识准备"><span class="nav-number">2.</span> <span class="nav-text">理论知识准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#彩色图的两种实现思路"><span class="nav-number">3.</span> <span class="nav-text">彩色图的两种实现思路</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rgb-通道"><span class="nav-number">3.1.</span> <span class="nav-text">RGB 通道</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hsv-通道"><span class="nav-number">3.2.</span> <span class="nav-text">HSV 通道</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#第一次算法的失败"><span class="nav-number">3.2.1.</span> <span class="nav-text">第一次算法的失败</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用估值代替准确值"><span class="nav-number">3.2.2.</span> <span class="nav-text">使用估值代替准确值</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#显示效果"><span class="nav-number">4.</span> <span class="nav-text">显示效果</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#灰度"><span class="nav-number">4.1.</span> <span class="nav-text">灰度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rgb"><span class="nav-number">4.2.</span> <span class="nav-text">RGB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hsv"><span class="nav-number">4.3.</span> <span class="nav-text">HSV</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#观察-直方图均衡化放大了噪声"><span class="nav-number">4.4.</span> <span class="nav-text">观察: 直方图均衡化放大了噪声</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体实现"><span class="nav-number">5.</span> <span class="nav-text">具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rgb-1"><span class="nav-number">5.1.</span> <span class="nav-text">RGB</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#遇到的问题"><span class="nav-number">5.1.1.</span> <span class="nav-text">遇到的问题</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#求直方图"><span class="nav-number">5.1.2.</span> <span class="nav-text">求直方图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#求转换函数"><span class="nav-number">5.1.3.</span> <span class="nav-text">求转换函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#赋值"><span class="nav-number">5.1.4.</span> <span class="nav-text">赋值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hsv-1"><span class="nav-number">5.2.</span> <span class="nav-text">HSV</span></a></li></ol></li></ol></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer id="footer" class="footer">
+<div class="footer-inner">
+<div class="copyright">© <span itemprop="copyrightYear">2019</span>
+<span class="with-love" id="animate">
+<i class="fa fa-user"></i>
+</span>
+<span class="author" itemprop="copyrightHolder">Inhzus</span>
+</div>
+<div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+<span class="post-meta-divider">|</span>
+<div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.2.0</div>
+</div>
+</footer>
+<div class="back-to-top">
+<i class="fa fa-arrow-up"></i>
+<span id="scrollpercent"><span>0</span>%</span>
+</div>
+</div>
+<script>
+if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<script type="text/javascript" src="/bundle.js"></script><script type="text/javascript">
+MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+;
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script></body></html>

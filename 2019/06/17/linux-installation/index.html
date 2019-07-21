@@ -1,0 +1,360 @@
+<!DOCTYPE html><html class="theme-next pisces" lang="en"><head><meta name="generator" content="Hexo 3.8.0">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2">
+<meta name="theme-color" content="#222">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+<link rel="mask-icon" href="/images/logo.svg" color="#222">
+<script id="hexo.configurations">
+var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+<meta name="description" content="起因 XPS-9360 对 Linux 的兼容性是众所周知的，考虑到 Windows 的以下问题：  注册表对于强迫症比较难受。 Linux 上可以方便地使用各种 Windows 不支持的 C++ 第三方库，且 Windows 不能提供 32 位子系统用于一些操作系统方面的实验。 环境配置过于恶心。  决定装双系统体验 Linux。 配置：Intel Core i7-8550U @ 8x 4GHz">
+<meta name="keywords" content="Configuration,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XPS-9360 安装 Linux 的体验">
+<meta property="og:url" content="https://iun.im/2019/06/17/linux-installation/index.html">
+<meta property="og:site_name" content="Inhzus's Blog">
+<meta property="og:description" content="起因 XPS-9360 对 Linux 的兼容性是众所周知的，考虑到 Windows 的以下问题：  注册表对于强迫症比较难受。 Linux 上可以方便地使用各种 Windows 不支持的 C++ 第三方库，且 Windows 不能提供 32 位子系统用于一些操作系统方面的实验。 环境配置过于恶心。  决定装双系统体验 Linux。 配置：Intel Core i7-8550U @ 8x 4GHz">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.loli.net/2019/06/17/5d0686d4509d420792.png">
+<meta property="og:image" content="https://i.loli.net/2019/06/17/5d0686663a7cf27937.png">
+<meta property="og:updated_time" content="2019-07-21T12:10:25.611Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XPS-9360 安装 Linux 的体验">
+<meta name="twitter:description" content="起因 XPS-9360 对 Linux 的兼容性是众所周知的，考虑到 Windows 的以下问题：  注册表对于强迫症比较难受。 Linux 上可以方便地使用各种 Windows 不支持的 C++ 第三方库，且 Windows 不能提供 32 位子系统用于一些操作系统方面的实验。 环境配置过于恶心。  决定装双系统体验 Linux。 配置：Intel Core i7-8550U @ 8x 4GHz">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/17/5d0686d4509d420792.png">
+<link rel="canonical" href="https://iun.im/2019/06/17/linux-installation/">
+<script id="page.configurations">
+CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+<title>XPS-9360 安装 Linux 的体验 | Inhzus's Blog</title>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-134644252-1"></script>
+<script>
+var host = window.location.hostname;
+    if (host !== "localhost" || !true) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-134644252-1');
+    }
+</script>
+<noscript>
+<style>
+.use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+</style>
+</noscript>
+</head>
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="en">
+<div class="container sidebar-position-left page-post-detail">
+<div class="headband"></div>
+<header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+<div class="header-inner"><div class="site-brand-wrapper">
+<div class="site-meta">
+<div class="custom-logo-site-title">
+<a href="/" class="brand" rel="start">
+<span class="logo-line-before"><i></i></span>
+<span class="site-title">Inhzus's Blog</span>
+<span class="logo-line-after"><i></i></span>
+</a>
+</div>
+</div>
+<div class="site-nav-toggle">
+<button aria-label="Toggle navigation bar">
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+</button>
+</div>
+</div>
+<nav class="site-nav">
+<ul id="menu" class="menu">
+<li class="menu-item menu-item-home">
+<a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a>
+</li>
+<li class="menu-item menu-item-tags">
+<a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a>
+</li>
+<li class="menu-item menu-item-archives">
+<a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a>
+</li>
+</ul>
+</nav>
+</div>
+</header>
+<a href="https://github.com/inhzus" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<main id="main" class="main">
+<div class="main-inner">
+<div class="content-wrap">
+<div id="content" class="content">
+<div id="posts" class="posts-expand">
+<article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+<div class="post-block">
+<link itemprop="mainEntityOfPage" href="https://iun.im/2019/06/17/linux-installation/">
+<span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<meta itemprop="name" content="Inhzus">
+<meta itemprop="description" content="Personal Tech Blog by Inhzus.">
+<meta itemprop="image" content="/images/avatar.gif">
+</span>
+<span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+<meta itemprop="name" content="Inhzus's Blog">
+</span>
+<header class="post-header">
+<h2 class="post-title" itemprop="name headline">XPS-9360 安装 Linux 的体验
+</h2>
+<div class="post-meta">
+<span class="post-meta-item">
+<span class="post-meta-item-icon">
+<i class="fa fa-calendar-o"></i>
+</span>
+<span class="post-meta-item-text">Posted on</span>
+<time title="Created: 2019-06-17 00:12:31" itemprop="dateCreated datePublished" datetime="2019-06-17T00:12:31+08:00">2019-06-17</time>
+</span>
+<br>
+</div>
+</header>
+<div class="post-body" itemprop="articleBody">
+<h1 id="起因">起因</h1>
+<p>XPS-9360 对 Linux 的兼容性是众所周知的，考虑到 Windows 的以下问题：</p>
+<ul>
+<li><p>注册表对于强迫症比较难受。</p></li>
+<li><p>Linux 上可以方便地使用各种 Windows 不支持的 C++ 第三方库，且 Windows 不能提供 32 位子系统用于一些操作系统方面的实验。</p></li>
+<li><p>环境配置过于恶心。</p></li>
+</ul>
+<p>决定装双系统体验 Linux。</p>
+<p>配置：Intel Core i7-8550U @ 8x 4GHz, 16 GB, Mesa DRI Intel(R) UHD Graphics 620 (Kabylake GT2)</p>
+<h1 id="ubuntu-18.04">Ubuntu 18.04</h1>
+<h2 id="安装">安装</h2>
+<p>第一次安装双系统比较困扰，后来发现事实上，只需要关闭 quick boot 和 AHCI，为系统预留一定的空间，直接从刻录系统的 U 盘启动系统就能进入安装流程。</p>
+<p>美化过程参考 <a href="https://zhuanlan.zhihu.com/p/37314255" target="_blank" rel="noopener">知乎美化教程</a>。必须使用的软件主要有：</p>
+<table>
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>软件</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>zsh</td>
+<td>替代 bash，使用 oh-my-zsh 进行美化，传闻启动较慢，对我来说 0.5s 完全可以接受</td>
+</tr>
+<tr class="even">
+<td>clash</td>
+<td>翻墙软件，替代 SS/SSR</td>
+</tr>
+<tr class="odd">
+<td>proxychains-ng, graftcp</td>
+<td>翻墙普遍做法是设置 http_proxy 等，实际操作认为不是每个操作都需要翻墙，故选择使用 proxychains-ng，graftcp 用于 go 程序的代理</td>
+</tr>
+<tr class="even">
+<td>fusuma</td>
+<td>由于 linux 不支持复杂的触摸板手势，故使用这一程序设置手势如关闭标签，切换标签等</td>
+</tr>
+</tbody>
+</table>
+<p>其他同 Windows.</p>
+<a id="more"></a>
+<h2 id="评价">评价</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li><p>我很不理解论坛里的一种论调即 Ubuntu 很丑，我个人觉得 Ubuntu 稍作美化就能比很多其它发行版好看很多（当然这一点也和自己的审美有关，个人偏向带 dock、顶部任务栏的风格，不过 Ubuntu 想要变好看确实是需要改一改的。</p></li>
+<li><p>国内的讨论非常多。</p></li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li><p>尽管笔记本配置已经相当不错，然而某些动画仍然有让人难受的卡顿感觉。</p></li>
+<li><p>Ubuntu 的 ppa 过于麻烦，apt package 版本陈旧。</p></li>
+<li><p>续航尿崩。原本使用 Windows 续航可达 10h, 使用 Ubuntu 可能只有 6h 左右。</p></li>
+</ul>
+<h1 id="manjaro-kde">Manjaro kde</h1>
+<p>由于无法忍受 Ubuntu 差劲的续航，考虑使用内存和 GPU 占用更少的桌面环境。在这期间，发现很多关于 Manjaro 的推荐，打算使用 Manjaro，考虑到：xfce 和 mate 过于简陋，gnome 无法解决续航问题，考虑使用人数比较多的 kde。</p>
+<h2 id="优点-1">优点</h2>
+<p>解决了 Ubuntu 缺点中的前两点问题，kde 相比 gnome 确实不怎么卡顿，pacman &amp; aur 的包管理很舒服。</p>
+<h2 id="缺点-1">缺点</h2>
+<ul>
+<li><p>勉强能看的界面，不符合个人审美。</p></li>
+<li><p>续航依然尿崩，在把各种乱七八糟的进程都清理一遍后，可能比 gnome 好那么百分之 5%？</p></li>
+</ul>
+<h1 id="manjaro-i3">Manjaro i3</h1>
+<p>在两三个月之前曾经尝试安装 i3wm，但是发现需要一定的学习成本，而那时候的课业负担有些重，体验了一下就直接格盘了。在多次尝试各种 de 未果之后，打算再次尝试 i3。</p>
+<h2 id="优点-2">优点</h2>
+<ul>
+<li><p>由于只有 bottom bar，没有各种 dock 等等，特别是在隐藏 bottom bar 后，整个电脑好不好看就已经和 i3 没有任何关系了。</p></li>
+<li><p>续航太好了，果然这种动画比较少，内存占用低的 wm 非常省电，续航居然可能有 11 个小时。</p></li>
+<li><p>配置不复杂，还能达到装逼的效果。</p></li>
+</ul>
+<h2 id="缺点-2">缺点</h2>
+<ul>
+<li><p>需要一定的学习成本。</p></li>
+<li><p>很多设置不能使用图形界面，比如启动项需要手动在 i3config 中写入。不过这些折腾都比较简单，还能接受。</p></li>
+</ul>
+<h2 id="展示">展示</h2>
+<p>最后附两张截图，几乎没有进行过显示上的配置。</p>
+<p><img src="https://i.loli.net/2019/06/17/5d0686d4509d420792.png"></p>
+<p><img src="https://i.loli.net/2019/06/17/5d0686663a7cf27937.png"></p>
+</div>
+<footer class="post-footer">
+<div class="post-tags">
+<a href="/tags/Configuration/" rel="tag"># Configuration</a>
+<a href="/tags/Linux/" rel="tag"># Linux</a>
+</div>
+<div class="post-nav">
+<div class="post-nav-next post-nav-item">
+<a href="/2019/04/30/canny-edge-detection/" rel="next" title="Canny 边缘检测与内边界追踪">
+<i class="fa fa-chevron-left"></i> Canny 边缘检测与内边界追踪
+</a>
+</div>
+<span class="post-nav-divider"></span>
+<div class="post-nav-prev post-nav-item">
+<a href="/2019/07/11/golang-concurrency-tricks/" rel="prev" title="golang-concurrency-tricks">
+golang-concurrency-tricks <i class="fa fa-chevron-right"></i>
+</a>
+</div>
+</div>
+</footer>
+</div>
+</article>
+</div>
+</div>
+</div>
+<div class="sidebar-toggle">
+<div class="sidebar-toggle-line-wrap">
+<span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+</div>
+</div>
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-inner">
+<ul class="sidebar-nav motion-element">
+<li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+Table of Contents
+</li>
+<li class="sidebar-nav-overview" data-target="site-overview-wrap">
+Overview
+</li>
+</ul>
+<div class="site-overview-wrap sidebar-panel">
+<div class="site-overview">
+<div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<p class="site-author-name" itemprop="name">Inhzus</p>
+<div class="site-description motion-element" itemprop="description">Personal Tech Blog by Inhzus.</div>
+</div>
+<nav class="site-state motion-element">
+<div class="site-state-item site-state-posts">
+<a href="/archives/">
+<span class="site-state-item-count">17</span>
+<span class="site-state-item-name">posts</span>
+</a>
+</div>
+<div class="site-state-item site-state-tags">
+<a href="/tags/">
+<span class="site-state-item-count">21</span>
+<span class="site-state-item-name">tags</span>
+</a>
+</div>
+</nav>
+<div class="links-of-author motion-element">
+<span class="links-of-author-item">
+<a href="https://github.com/inhzus" title="GitHub → https://github.com/inhzus" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+</span>
+<span class="links-of-author-item">
+<a href="mailto:inhzus@gmail.com" title="E-Mail → mailto:inhzus@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+</span>
+</div>
+<div class="links-of-blogroll motion-element links-of-blogroll-block">
+<div class="links-of-blogroll-title">
+<i class="fa fa-fw fa-link"></i>
+Links
+</div>
+<ul class="links-of-blogroll-list">
+<li class="links-of-blogroll-item">
+<a href="https://www.zsuun.com" title="https://www.zsuun.com" rel="noopener" target="_blank">zsuun.com</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+<div class="post-toc">
+<div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#起因"><span class="nav-number">1.</span> <span class="nav-text">起因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ubuntu-18.04"><span class="nav-number">2.</span> <span class="nav-text">Ubuntu 18.04</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#评价"><span class="nav-number">2.2.</span> <span class="nav-text">评价</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">2.2.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">2.2.2.</span> <span class="nav-text">缺点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#manjaro-kde"><span class="nav-number">3.</span> <span class="nav-text">Manjaro kde</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点-1"><span class="nav-number">3.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-1"><span class="nav-number">3.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#manjaro-i3"><span class="nav-number">4.</span> <span class="nav-text">Manjaro i3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点-2"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-2"><span class="nav-number">4.2.</span> <span class="nav-text">缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#展示"><span class="nav-number">4.3.</span> <span class="nav-text">展示</span></a></li></ol></li></ol></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer id="footer" class="footer">
+<div class="footer-inner">
+<div class="copyright">© <span itemprop="copyrightYear">2019</span>
+<span class="with-love" id="animate">
+<i class="fa fa-user"></i>
+</span>
+<span class="author" itemprop="copyrightHolder">Inhzus</span>
+</div>
+<div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+<span class="post-meta-divider">|</span>
+<div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.2.0</div>
+</div>
+</footer>
+<div class="back-to-top">
+<i class="fa fa-arrow-up"></i>
+<span id="scrollpercent"><span>0</span>%</span>
+</div>
+</div>
+<script>
+if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.js"></script></body></html>

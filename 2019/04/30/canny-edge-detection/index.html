@@ -1,0 +1,351 @@
+<!DOCTYPE html><html class="theme-next pisces" lang="en"><head><meta name="generator" content="Hexo 3.8.0">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2">
+<meta name="theme-color" content="#222">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+<link rel="mask-icon" href="/images/logo.svg" color="#222">
+<script id="hexo.configurations">
+var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+<meta name="description" content="对目标图片进行边缘检测与边缘连接 原理 Canny 边缘检测算法 与 边缘连接/ Inner boundary tracing 的算法过程如下. 高斯滤波 使用高斯滤波矩阵作用于图像, 用以平滑图像来消除噪点. 梯度值与方向 使用 Sobel 算子 (或 Roberts, Prewitt 等), 分别得到横向与纵向两个方向的梯度.">
+<meta name="keywords" content="Algorithm,Image,Matlab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Canny 边缘检测与内边界追踪">
+<meta property="og:url" content="https://iun.im/2019/04/30/canny-edge-detection/index.html">
+<meta property="og:site_name" content="Inhzus's Blog">
+<meta property="og:description" content="对目标图片进行边缘检测与边缘连接 原理 Canny 边缘检测算法 与 边缘连接/ Inner boundary tracing 的算法过程如下. 高斯滤波 使用高斯滤波矩阵作用于图像, 用以平滑图像来消除噪点. 梯度值与方向 使用 Sobel 算子 (或 Roberts, Prewitt 等), 分别得到横向与纵向两个方向的梯度.">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e654e83e234476.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e665a7bd816725.jpg">
+<meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e669171bd95945.jpg">
+<meta property="og:updated_time" content="2019-07-21T12:10:25.610Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Canny 边缘检测与内边界追踪">
+<meta name="twitter:description" content="对目标图片进行边缘检测与边缘连接 原理 Canny 边缘检测算法 与 边缘连接/ Inner boundary tracing 的算法过程如下. 高斯滤波 使用高斯滤波矩阵作用于图像, 用以平滑图像来消除噪点. 梯度值与方向 使用 Sobel 算子 (或 Roberts, Prewitt 等), 分别得到横向与纵向两个方向的梯度.">
+<meta name="twitter:image" content="https://i.loli.net/2019/06/02/5cf3e654e83e234476.jpg">
+<link rel="canonical" href="https://iun.im/2019/04/30/canny-edge-detection/">
+<script id="page.configurations">
+CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+<title>Canny 边缘检测与内边界追踪 | Inhzus's Blog</title>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-134644252-1"></script>
+<script>
+var host = window.location.hostname;
+    if (host !== "localhost" || !true) {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-134644252-1');
+    }
+</script>
+<noscript>
+<style>
+.use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+</style>
+</noscript>
+</head>
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="en">
+<div class="container sidebar-position-left page-post-detail">
+<div class="headband"></div>
+<header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+<div class="header-inner"><div class="site-brand-wrapper">
+<div class="site-meta">
+<div class="custom-logo-site-title">
+<a href="/" class="brand" rel="start">
+<span class="logo-line-before"><i></i></span>
+<span class="site-title">Inhzus's Blog</span>
+<span class="logo-line-after"><i></i></span>
+</a>
+</div>
+</div>
+<div class="site-nav-toggle">
+<button aria-label="Toggle navigation bar">
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+<span class="btn-bar"></span>
+</button>
+</div>
+</div>
+<nav class="site-nav">
+<ul id="menu" class="menu">
+<li class="menu-item menu-item-home">
+<a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i><br>Home</a>
+</li>
+<li class="menu-item menu-item-tags">
+<a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i><br>Tags</a>
+</li>
+<li class="menu-item menu-item-archives">
+<a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i><br>Archives</a>
+</li>
+</ul>
+</nav>
+</div>
+</header>
+<a href="https://github.com/inhzus" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<main id="main" class="main">
+<div class="main-inner">
+<div class="content-wrap">
+<div id="content" class="content">
+<div id="posts" class="posts-expand">
+<article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+<div class="post-block">
+<link itemprop="mainEntityOfPage" href="https://iun.im/2019/04/30/canny-edge-detection/">
+<span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<meta itemprop="name" content="Inhzus">
+<meta itemprop="description" content="Personal Tech Blog by Inhzus.">
+<meta itemprop="image" content="/images/avatar.gif">
+</span>
+<span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+<meta itemprop="name" content="Inhzus's Blog">
+</span>
+<header class="post-header">
+<h2 class="post-title" itemprop="name headline">Canny 边缘检测与内边界追踪
+</h2>
+<div class="post-meta">
+<span class="post-meta-item">
+<span class="post-meta-item-icon">
+<i class="fa fa-calendar-o"></i>
+</span>
+<span class="post-meta-item-text">Posted on</span>
+<time title="Created: 2019-04-30 11:54:01" itemprop="dateCreated datePublished" datetime="2019-04-30T11:54:01+08:00">2019-04-30</time>
+</span>
+<br>
+</div>
+</header>
+<div class="post-body" itemprop="articleBody">
+<p>对目标图片进行边缘检测与边缘连接</p>
+<h3 id="原理">原理</h3>
+<p><a href="https://en.wikipedia.org/wiki/Canny_edge_detector" target="_blank" rel="noopener">Canny 边缘检测算法</a> 与 <a href="http://user.engineering.uiowa.edu/~dip/LECTURE/Segmentation2.html#tracing" target="_blank" rel="noopener">边缘连接/ Inner boundary tracing</a> 的算法过程如下.</p>
+<h4 id="高斯滤波">高斯滤波</h4>
+<p>使用高斯滤波矩阵作用于图像, 用以平滑图像来消除噪点.</p>
+<h4 id="梯度值与方向">梯度值与方向</h4>
+<p>使用 <a href="https://en.wikipedia.org/wiki/Canny_edge_detector" target="_blank" rel="noopener">Sobel 算子</a> (或 Roberts, Prewitt 等), 分别得到横向与纵向两个方向的梯度.<a id="more"></a> 根据横向梯度 <span class="math inline">\(g_x\)</span> 和纵向梯度 <span class="math inline">\(g_y\)</span>, 计算梯度值与梯度方向. <span class="math display">\[ G = \sqrt{g_x^2 + g_y^2}\\ \theta = arctan \frac{g_y}{g_x} \]</span></p>
+<h4 id="非最大值抑制">非最大值抑制</h4>
+<p>在穿过某个点的四个直线上, 分别与相邻的两个梯度值进行比较, 只有它比相邻梯度值都大时将其保留.</p>
+<p>这样能够将比较多的梯度值简化为较少的边界.</p>
+<h4 id="双阈值过滤">双阈值过滤</h4>
+<p>使用双阈值对图片的梯度值进行过滤, 若大于较大阈值则认为是边界; 若小于较小阈值则认为不是边界; 若位于双阈值之间, 且有超过较大阈值的梯度值相邻, 则也认为是边界, 否则认为不是边界. 伪代码:</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (image(row, col) &gt; higher_threshold <span class="keyword">or</span></span><br><span class="line">    (image(row, col) &gt; lower_threshold <span class="keyword">and</span></span><br><span class="line">     neighbor_greater_than_higher_threshold(row, col))):</span><br><span class="line">    image(row, col) = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    image(row, col) = <span class="number">0</span>;</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="内边界追踪">内边界追踪</h4>
+<p>使用 Sobel 算子得到的图片有八连通边界, 以此为条件, <a href="http://user.engineering.uiowa.edu/~dip/LECTURE/Segmentation2.html#tracing" target="_blank" rel="noopener">inner boundary tracing</a> 过程如下</p>
+<ul>
+<li><p>设置初始 dir 为 7, 不同 dir 对应的方向如图 5.13(b);</p></li>
+<li><p>逆时针搜索点的八近邻, 直到发现下一个边界点设为 dir, 且:</p>
+<ul>
+<li><p>dir = (dir + 7) % 8, if dir is even (图 5.13(d))</p></li>
+<li><p>dir = (dir + 6) % 8, if dir is odd (图 5.13(e))</p></li>
+</ul></li>
+<li><p>搜索直到无法找到下一个边界点或回到起点.</p></li>
+</ul>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e654e83e234476.jpg"></p>
+<h3 id="细节">细节</h3>
+<p>Canny 边缘检测算法在维基百科中的介绍已经非常全面了, 但一些实现细节仍需探讨.</p>
+<h4 id="频域上的变化">频域上的变化</h4>
+<p>考虑到傅立叶变换后对高频空间进行过滤也能够有效地平滑图像, 因此考虑进行快速傅立叶变换之后, 将高频部分置为 0.</p>
+<p>当然, 将低频部分过滤也可能起到非常好的作用, 但难以使用同样的指标对不同图片都进行低频过滤, 因此放弃过滤低频.</p>
+<h4 id="双阈值的取值">双阈值的取值</h4>
+<p>维基百科并没有对双阈值的取值给出准确的推荐值, 根据 <a href="https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection" target="_blank" rel="noopener">Quora: How to set the threshold in canny edge detection</a>, <a href="https://stackoverflow.com/questions/24862374/canny-edge-detector-threshold-values-gives-different-result" target="_blank" rel="noopener">Stackoverflow: Canny edge detector threshold</a>, 认为有两种对双阈值取值的方法.</p>
+<ul>
+<li><p>根据 <a href="http://www.labbookpages.co.uk/software/imgProc/otsuThreshold.html" target="_blank" rel="noopener">Lab Book Pages: Otsu Thresholding</a> 计算 OTSU 阈值作为高阈值, 并取其 1/2 作为低阈值.</p></li>
+<li><p>原灰度图平均值的 1.33 倍作为高阈值, 0.66 倍作为低阈值.</p></li>
+</ul>
+<p>经过实践, 认为第二种方法的效果会更好并更具有可控性. 两种算法在代码中都有体现.</p>
+<h3 id="效果">效果</h3>
+<h4 id="pic-a">Pic A</h4>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e665a7bd816725.jpg"></p>
+<h4 id="pic-b">Pic B</h4>
+<p><img src="https://i.loli.net/2019/06/02/5cf3e669171bd95945.jpg"></p>
+<h3 id="实现">实现</h3>
+<p>完整代码: <a href="https://gist.github.com/inhzus/5ec44e0aa69ba04926ceb8bf159bbc30" target="_blank" rel="noopener">edge_detection.m</a> <a href="https://gist.github.com/inhzus/0474a81fad1c7cd92c40ea740e9423a1" target="_blank" rel="noopener">edge_linking.m</a></p>
+<h4 id="高斯滤波-1">高斯滤波</h4>
+<p>高斯滤波在 MatLab 中可以通过 imfilter 实现.</p>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gauss_ret</span> = <span class="title">gauss_blur</span><span class="params">(gauss_img)</span></span></span><br><span class="line">    filter_matrix = <span class="number">1</span>/<span class="number">159</span> * [</span><br><span class="line">        <span class="number">2</span> <span class="number">4</span> <span class="number">5</span> <span class="number">4</span> <span class="number">2</span>;</span><br><span class="line">        <span class="number">4</span> <span class="number">9</span> <span class="number">12</span> <span class="number">9</span> <span class="number">4</span>;</span><br><span class="line">        <span class="number">5</span> <span class="number">12</span> <span class="number">15</span> <span class="number">12</span> <span class="number">5</span>;</span><br><span class="line">        <span class="number">4</span> <span class="number">9</span> <span class="number">12</span> <span class="number">9</span> <span class="number">4</span>;</span><br><span class="line">        <span class="number">2</span> <span class="number">4</span> <span class="number">5</span> <span class="number">4</span> <span class="number">2</span>];</span><br><span class="line">    gauss_ret = imfilter(gauss_img, filter_matrix);</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="梯度值与方向-1">梯度值与方向</h4>
+<p>使用 Sobel 算子也可以使用 imfilter 函数. 在计算出 <span class="math inline">\(\theta\)</span> 后, 为了避免 nan 引入的问题, 将这些地方设为 2.</p>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[sobel_g, sobel_theta]</span> = <span class="title">sobel</span><span class="params">(sobel_img)</span></span></span><br><span class="line">    sobel_x = [<span class="number">-1</span> <span class="number">0</span> <span class="number">1</span>; <span class="number">-2</span> <span class="number">0</span> <span class="number">2</span>; <span class="number">-1</span> <span class="number">0</span> <span class="number">1</span>];</span><br><span class="line">    sobel_y = [<span class="number">1</span> <span class="number">2</span> <span class="number">1</span>; <span class="number">0</span> <span class="number">0</span> <span class="number">0</span>; <span class="number">-1</span> <span class="number">-2</span> <span class="number">-1</span>];</span><br><span class="line">    x_ret = imfilter(sobel_img, sobel_x);</span><br><span class="line">    y_ret = imfilter(sobel_img, sobel_y);</span><br><span class="line">    sobel_g = <span class="built_in">sqrt</span>(x_ret.^<span class="number">2</span> + y_ret.^<span class="number">2</span>);</span><br><span class="line">    sobel_theta = <span class="built_in">atan</span>(y_ret./x_ret) * <span class="number">180</span> / <span class="built_in">pi</span>;</span><br><span class="line">    sobel_theta = <span class="built_in">round</span>(sobel_theta / <span class="number">45</span>) * <span class="number">45</span>;</span><br><span class="line">    sobel_theta(<span class="built_in">isnan</span>(sobel_theta)) = <span class="number">2</span>;</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="非极大值抑制">非极大值抑制</h4>
+<p>非极大值抑制只需要在四个方向上进行比较并拷贝. 为什么需要拷贝而不是在原图上操作? 避免在原图上的新结果影响最终的结果值.</p>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">edge = <span class="built_in">zeros</span>(height, width);</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">2</span> : height - <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">2</span> : width - <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> (...</span><br><span class="line">            (<span class="built_in">abs</span>(theta(<span class="built_in">i</span>, <span class="built_in">j</span>)) == <span class="number">90</span> &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span>+<span class="number">1</span>, <span class="built_in">j</span>) &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span><span class="number">-1</span>, <span class="built_in">j</span>)) ||...</span><br><span class="line">            (theta(<span class="built_in">i</span>, <span class="built_in">j</span>) == <span class="number">0</span> &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span>, <span class="built_in">j</span> + <span class="number">1</span>) &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span>, <span class="built_in">j</span> - <span class="number">1</span>)) ||...</span><br><span class="line">            (theta(<span class="built_in">i</span>, <span class="built_in">j</span>) == <span class="number">45</span> &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span> + <span class="number">1</span>, <span class="built_in">j</span> + <span class="number">1</span>) &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span> - <span class="number">1</span>, <span class="built_in">j</span> - <span class="number">1</span>)) ||...</span><br><span class="line">            (theta(<span class="built_in">i</span>, <span class="built_in">j</span>) == <span class="number">-45</span> &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span> + <span class="number">1</span>, <span class="built_in">j</span> - <span class="number">1</span>) &amp;&amp;...</span><br><span class="line">            g(<span class="built_in">i</span>, <span class="built_in">j</span>) &gt;= g(<span class="built_in">i</span> - <span class="number">1</span>, <span class="built_in">j</span> + <span class="number">1</span>))...</span><br><span class="line">        )</span><br><span class="line">            edge(<span class="built_in">i</span>, <span class="built_in">j</span>) = g(<span class="built_in">i</span>, <span class="built_in">j</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            edge(<span class="built_in">i</span>, <span class="built_in">j</span>) = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+<h4 id="双阈值过滤-1">双阈值过滤</h4>
+<p>双阈值的取值设为平均值的 1.33 倍与 0.66 倍.</p>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">upper_thresh = <span class="number">1.33</span> * mean_value;</span><br><span class="line">lower_thresh = <span class="number">0.66</span> * mean_value;</span><br><span class="line">edge((lower_thresh &lt; edge) &amp; (edge &lt; upper_thresh)) = <span class="number">0.5</span>;</span><br><span class="line">edge(edge &lt; lower_thresh) = <span class="number">0</span>;</span><br><span class="line">edge(edge &gt; upper_thresh) = <span class="number">1.0</span>;</span><br><span class="line">edge = filter_low_thresh(edge);</span><br></pre></td></tr></tbody></table></figure>
+<p>在 filter_low_thresh 函数中, 遍历所有点的八近邻, 如果当前点小于较大阈值大于较小阈值, 八近邻中有点大于较大阈值, 则视为边界.</p>
+<h4 id="内边界追踪-1">内边界追踪</h4>
+<p>由于要将数字 0-7 转化为 8 个方向, 代码比较冗长, 因此这里省略部分代码.</p>
+<p>在这部分, 需要明确:</p>
+<ul>
+<li><p>什么时候终止继续寻找边界, 回到起点或找不到下一个边界点</p></li>
+<li><p>MatLab index 值为 1-8, 需要进行转换</p></li>
+</ul>
+<figure class="highlight matlab"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">output = [row col;];</span><br><span class="line">image(row, col) = <span class="number">0</span>;</span><br><span class="line">dir = <span class="number">7</span>;</span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    [row, col, next_found, dir] = find_next_dir(row, col, dir, image);</span><br><span class="line">    <span class="keyword">if</span> (~next_found)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span> (output(<span class="number">1</span>, <span class="number">1</span>) == row &amp;&amp; output(<span class="number">1</span>, <span class="number">2</span>) == col)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    image(row, col) = <span class="number">0</span>;</span><br><span class="line">    output = [output; row col;];</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[frh, frw, frfound, frp]</span> = <span class="title">find_next_dir</span><span class="params">(fh, fw, fdir, fimage)</span></span></span><br><span class="line">    [height, width] = <span class="built_in">size</span>(fimage);</span><br><span class="line">    signs = <span class="built_in">zeros</span>(<span class="number">1</span>, <span class="number">8</span>);</span><br><span class="line">    # ...</span><br><span class="line">    # set signs</span><br><span class="line">    # ...</span><br><span class="line">    frfound = <span class="number">0</span>;</span><br><span class="line">    frp = <span class="built_in">mod</span>(fdir + <span class="number">1</span>, <span class="number">8</span>) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> (signs(frp))</span><br><span class="line">            frfound = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        frp = <span class="built_in">mod</span>(frp, <span class="number">8</span>) + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (frp == <span class="built_in">mod</span>(fdir + <span class="number">1</span>, <span class="number">8</span>) + <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    # ...</span><br><span class="line">    # set return frh &amp; frw</span><br><span class="line">    # ...</span><br><span class="line">    frp = frp - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">mod</span>(frp, <span class="number">2</span>) == <span class="number">1</span>)</span><br><span class="line">        frp = <span class="built_in">mod</span>(frp + <span class="number">6</span>, <span class="number">8</span>);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        frp = <span class="built_in">mod</span>(frp + <span class="number">7</span>, <span class="number">8</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br></pre></td></tr></tbody></table></figure>
+<h3 id="参考资料">参考资料</h3>
+<p><a href="http://www.labbookpages.co.uk/software/imgProc/otsuThreshold.html" target="_blank" rel="noopener">Lab Book Pages: Otsu Thresholding</a></p>
+<p><a href="https://www.quora.com/How-do-I-set-the-upper-and-lower-threshold-in-canny-edge-detection" target="_blank" rel="noopener">Quora: How to set the upper and lower threshold in canny edge detection</a></p>
+<p><a href="https://stackoverflow.com/questions/24862374/canny-edge-detector-threshold-values-gives-different-result" target="_blank" rel="noopener">Stackoverflow: Canny edge detector threshold</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Canny_edge_detector" target="_blank" rel="noopener">Wiki: Canny edge detector</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Canny_edge_detector" target="_blank" rel="noopener">Wiki: Sobel detector</a></p>
+<p><a href="http://user.engineering.uiowa.edu/~dip/LECTURE/Segmentation2.html#tracing" target="_blank" rel="noopener">Border Tracing</a></p>
+</div>
+<footer class="post-footer">
+<div class="post-tags">
+<a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+<a href="/tags/Image/" rel="tag"># Image</a>
+<a href="/tags/Matlab/" rel="tag"># Matlab</a>
+</div>
+<div class="post-nav">
+<div class="post-nav-next post-nav-item">
+<a href="/2019/04/24/backend-interview/" rel="next" title="2019年后端实习生面试记录">
+<i class="fa fa-chevron-left"></i> 2019年后端实习生面试记录
+</a>
+</div>
+<span class="post-nav-divider"></span>
+<div class="post-nav-prev post-nav-item">
+<a href="/2019/06/17/linux-installation/" rel="prev" title="XPS-9360 安装 Linux 的体验">
+XPS-9360 安装 Linux 的体验 <i class="fa fa-chevron-right"></i>
+</a>
+</div>
+</div>
+</footer>
+</div>
+</article>
+</div>
+</div>
+</div>
+<div class="sidebar-toggle">
+<div class="sidebar-toggle-line-wrap">
+<span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+<span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+</div>
+</div>
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-inner">
+<ul class="sidebar-nav motion-element">
+<li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+Table of Contents
+</li>
+<li class="sidebar-nav-overview" data-target="site-overview-wrap">
+Overview
+</li>
+</ul>
+<div class="site-overview-wrap sidebar-panel">
+<div class="site-overview">
+<div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+<p class="site-author-name" itemprop="name">Inhzus</p>
+<div class="site-description motion-element" itemprop="description">Personal Tech Blog by Inhzus.</div>
+</div>
+<nav class="site-state motion-element">
+<div class="site-state-item site-state-posts">
+<a href="/archives/">
+<span class="site-state-item-count">17</span>
+<span class="site-state-item-name">posts</span>
+</a>
+</div>
+<div class="site-state-item site-state-tags">
+<a href="/tags/">
+<span class="site-state-item-count">21</span>
+<span class="site-state-item-name">tags</span>
+</a>
+</div>
+</nav>
+<div class="links-of-author motion-element">
+<span class="links-of-author-item">
+<a href="https://github.com/inhzus" title="GitHub → https://github.com/inhzus" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+</span>
+<span class="links-of-author-item">
+<a href="mailto:inhzus@gmail.com" title="E-Mail → mailto:inhzus@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+</span>
+</div>
+<div class="links-of-blogroll motion-element links-of-blogroll-block">
+<div class="links-of-blogroll-title">
+<i class="fa fa-fw fa-link"></i>
+Links
+</div>
+<ul class="links-of-blogroll-list">
+<li class="links-of-blogroll-item">
+<a href="https://www.zsuun.com" title="https://www.zsuun.com" rel="noopener" target="_blank">zsuun.com</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+<div class="post-toc">
+<div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#原理"><span class="nav-number">1.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#高斯滤波"><span class="nav-number">1.1.</span> <span class="nav-text">高斯滤波</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#梯度值与方向"><span class="nav-number">1.2.</span> <span class="nav-text">梯度值与方向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#非最大值抑制"><span class="nav-number">1.3.</span> <span class="nav-text">非最大值抑制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双阈值过滤"><span class="nav-number">1.4.</span> <span class="nav-text">双阈值过滤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内边界追踪"><span class="nav-number">1.5.</span> <span class="nav-text">内边界追踪</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#细节"><span class="nav-number">2.</span> <span class="nav-text">细节</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#频域上的变化"><span class="nav-number">2.1.</span> <span class="nav-text">频域上的变化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双阈值的取值"><span class="nav-number">2.2.</span> <span class="nav-text">双阈值的取值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#效果"><span class="nav-number">3.</span> <span class="nav-text">效果</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pic-a"><span class="nav-number">3.1.</span> <span class="nav-text">Pic A</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pic-b"><span class="nav-number">3.2.</span> <span class="nav-text">Pic B</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现"><span class="nav-number">4.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#高斯滤波-1"><span class="nav-number">4.1.</span> <span class="nav-text">高斯滤波</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#梯度值与方向-1"><span class="nav-number">4.2.</span> <span class="nav-text">梯度值与方向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#非极大值抑制"><span class="nav-number">4.3.</span> <span class="nav-text">非极大值抑制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#双阈值过滤-1"><span class="nav-number">4.4.</span> <span class="nav-text">双阈值过滤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内边界追踪-1"><span class="nav-number">4.5.</span> <span class="nav-text">内边界追踪</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<footer id="footer" class="footer">
+<div class="footer-inner">
+<div class="copyright">© <span itemprop="copyrightYear">2019</span>
+<span class="with-love" id="animate">
+<i class="fa fa-user"></i>
+</span>
+<span class="author" itemprop="copyrightHolder">Inhzus</span>
+</div>
+<div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+<span class="post-meta-divider">|</span>
+<div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.2.0</div>
+</div>
+</footer>
+<div class="back-to-top">
+<i class="fa fa-arrow-up"></i>
+<span id="scrollpercent"><span>0</span>%</span>
+</div>
+</div>
+<script>
+if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.js"></script></body></html>
