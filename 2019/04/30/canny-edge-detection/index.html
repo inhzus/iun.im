@@ -36,7 +36,7 @@ var NexT = window.NexT || {};
 <meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e654e83e234476.jpg">
 <meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e665a7bd816725.jpg">
 <meta property="og:image" content="https://i.loli.net/2019/06/02/5cf3e669171bd95945.jpg">
-<meta property="og:updated_time" content="2019-07-21T12:10:25.610Z">
+<meta property="og:updated_time" content="2019-07-21T17:08:20.052Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Canny 边缘检测与内边界追踪">
 <meta name="twitter:description" content="对目标图片进行边缘检测与边缘连接 原理 Canny 边缘检测算法 与 边缘连接/ Inner boundary tracing 的算法过程如下. 高斯滤波 使用高斯滤波矩阵作用于图像, 用以平滑图像来消除噪点. 梯度值与方向 使用 Sobel 算子 (或 Roberts, Prewitt 等), 分别得到横向与纵向两个方向的梯度.">
@@ -348,4 +348,38 @@ if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
 
 
 
-<script type="text/javascript" src="/bundle.js"></script></body></html>
+
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<script type="text/javascript" src="/bundle.js"></script><script type="text/javascript">
+MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+;
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script></body></html>
