@@ -122,13 +122,6 @@
     </url>
 
     <url>
-        <loc>https://iun.im/tags/Impression/</loc>
-        <lastmod>2019-07-21T17:01:20.141Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>https://iun.im/tags/Algorithm/</loc>
         <lastmod>2019-07-21T17:08:20.052Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -145,6 +138,13 @@
     <url>
         <loc>https://iun.im/tags/Matlab/</loc>
         <lastmod>2019-07-21T17:08:20.052Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://iun.im/tags/Impression/</loc>
+        <lastmod>2019-07-22T01:26:10.378Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
