@@ -31,20 +31,6 @@
     </url>
 
     <url>
-        <loc>https://iun.im/tags/Tech/</loc>
-        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://iun.im/tags/Juq/</loc>
-        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>https://iun.im/tags/Hadoop/</loc>
         <lastmod>2019-07-21T12:10:25.610Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -59,14 +45,21 @@
     </url>
 
     <url>
-        <loc>https://iun.im/tags/Configuration/</loc>
-        <lastmod>2019-07-21T12:10:25.611Z</lastmod>
+        <loc>https://iun.im/tags/Tech/</loc>
+        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>https://iun.im/tags/Python/</loc>
+        <loc>https://iun.im/tags/Juq/</loc>
+        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://iun.im/tags/Configuration/</loc>
         <lastmod>2019-07-21T12:10:25.611Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -102,6 +95,13 @@
 
     <url>
         <loc>https://iun.im/tags/Data-Mining/</loc>
+        <lastmod>2019-07-21T12:10:25.611Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://iun.im/tags/Python/</loc>
         <lastmod>2019-07-21T12:10:25.611Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -144,7 +144,7 @@
 
     <url>
         <loc>https://iun.im/tags/Impression/</loc>
-        <lastmod>2019-07-22T01:26:10.378Z</lastmod>
+        <lastmod>2019-07-27T15:44:22.729Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

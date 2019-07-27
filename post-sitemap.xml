@@ -8,8 +8,16 @@
     </url>
 
     <url>
+        <loc>https://iun.im/2019/07/27/weekend-impression2/</loc>
+        <lastmod>2019-07-27T15:44:22.729Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://iun.im/2019/07/21/weekend-impression1/</loc>
-        <lastmod>2019-07-22T01:26:10.378Z</lastmod>
+        <lastmod>2019-07-23T02:04:14.737Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
@@ -80,14 +88,6 @@
     </url>
 
     <url>
-        <loc>https://iun.im/2019/03/26/juq-technical-docs/</loc>
-        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
         <loc>https://iun.im/2019/03/31/hadoop-pseudo-distributed-mode-configuration/</loc>
         <lastmod>2019-07-21T12:10:25.610Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -97,6 +97,14 @@
 
     <url>
         <loc>https://iun.im/2019/04/09/resume/</loc>
+        <lastmod>2019-07-21T12:10:25.610Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://iun.im/2019/03/26/juq-technical-docs/</loc>
         <lastmod>2019-07-21T12:10:25.610Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
