@@ -123,58 +123,6 @@ var host = window.location.hostname;
 <section id="posts" class="posts-expand">
 <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
 <div class="post-block">
-<link itemprop="mainEntityOfPage" href="https://iun.im/2019/03/31/hadoop-pseudo-distributed-mode-configuration/">
-<span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-<meta itemprop="name" content="Inhzus">
-<meta itemprop="description" content="Personal Tech Blog by Inhzus.">
-<meta itemprop="image" content="/images/avatar.gif">
-</span>
-<span hidden="" itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-<meta itemprop="name" content="Inhzus's Blog">
-</span>
-<header class="post-header">
-<h2 class="post-title" itemprop="name headline">
-<a href="/2019/03/31/hadoop-pseudo-distributed-mode-configuration/" class="post-title-link" itemprop="url">Hadoop 2.7.1 ECS 单机伪分布配置</a>
-</h2>
-<div class="post-meta">
-<span class="post-meta-item">
-<span class="post-meta-item-icon">
-<i class="fa fa-calendar-o"></i>
-</span>
-<span class="post-meta-item-text">Posted on</span>
-<time title="Created: 2019-03-31 15:10:41" itemprop="dateCreated datePublished" datetime="2019-03-31T15:10:41+08:00">2019-03-31</time>
-</span>
-<br>
-</div>
-</header>
-<div class="post-body" itemprop="articleBody">
-<p>Hadoop 2.7.1 ECS 单机伪分布配置</p>
-<h3 id="目的">目的</h3>
-<p>按照网上某些配置, Jobhistory Server 不能正确显示任务, 或 Resource Manager 8088 无法访问.</p>
-<p>综合官方文档及 ML Wiki 配置作小修改后, 配置成功. 参考文档见文末.</p>
-<h3 id="步骤">步骤</h3>
-<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="variable">${HADOOP_HOME}</span>/etc/hadoop</span><br></pre></td></tr></tbody></table></figure>
-<p>方便编辑该目录下的各个配置文件.</p>
-<h4 id="环境变量">环境变量</h4>
-<h5 id="etcprofile">/etc/profile</h5>
-<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/lib/jvm/jdk***</span><br><span class="line"><span class="built_in">export</span> JRE_HOME=<span class="variable">${JAVA_HOME}</span>/jre</span><br><span class="line"><span class="built_in">export</span> CLASSPATH=.:<span class="variable">${JAVA_HOME}</span>/lib:<span class="variable">${JRE_HOME}</span>/lib</span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/home/hadoop/hadoop-2.7.1</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">${JAVA_HOME}</span>/bin:<span class="variable">${HADOOP_HOME}</span>/bin:<span class="variable">${HADOOP_HOME}</span>/sbin:<span class="variable">$PATH</span></span><br></pre></td></tr></tbody></table></figure>
-<p>可将 <code>${HADOOP_HOME}/bin</code> <code>${HADOOP_HOME}/sbin</code> 添加至 PATH.</p>
-<h5 id="hadoop-env.sh">hadoop-env.sh</h5>
-<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/lib/jvm/jdk***</span><br></pre></td></tr></tbody></table></figure>
-<p>配置Hadoop 中的 JAVA 环境.</p>
-<div class="post-button text-center">
-<a class="btn" href="/2019/03/31/hadoop-pseudo-distributed-mode-configuration/#more" rel="contents">
-Read more »
-</a>
-</div>
-</div>
-<footer class="post-footer">
-<div class="post-eof"></div>
-</footer>
-</div>
-</article>
-<article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-<div class="post-block">
 <link itemprop="mainEntityOfPage" href="https://iun.im/2019/03/26/juq-technical-docs/">
 <span hidden="" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
 <meta itemprop="name" content="Inhzus">
@@ -530,13 +478,13 @@ Read more »
 <nav class="site-state motion-element">
 <div class="site-state-item site-state-posts">
 <a href="/archives/">
-<span class="site-state-item-count">18</span>
+<span class="site-state-item-count">16</span>
 <span class="site-state-item-name">posts</span>
 </a>
 </div>
 <div class="site-state-item site-state-tags">
 <a href="/tags/">
-<span class="site-state-item-count">21</span>
+<span class="site-state-item-count">20</span>
 <span class="site-state-item-name">tags</span>
 </a>
 </div>
