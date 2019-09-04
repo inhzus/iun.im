@@ -2,6 +2,7 @@
 title: Canny 边缘检测与内边界追踪
 date: 2019-04-30 11:54:01
 tags: [Image, Matlab, Algorithm]
+mathjax: true
 ---
 
 对目标图片进行边缘检测与边缘连接
